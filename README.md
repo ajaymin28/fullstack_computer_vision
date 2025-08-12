@@ -10,13 +10,16 @@ This repository hosts small, focused examples that you can compose into a full d
 
 * [Project Structure](#project-structure)
 * [Stage 1 — Image Classification (ResNet)](#stage-1--image-classification-resnet)
-
   * [Setup](#setup)
   * [Data](#data)
   * [Train](#train)
-  * [Evaluate & Test](#evaluate--test)
-  * [Configuration](#configuration)
+  * [Evaluate & Test]
+  * [Model/Experiment Tracking]
+  * [API Development]
+  * [Docker Deployment]
   * [Troubleshooting](#troubleshooting)
+  * [Video Tutorials](#video-tutorial)
+
 * [Roadmap](#roadmap)
 * [Contributing](#contributing)
 * [License](#license)
@@ -27,6 +30,14 @@ This repository hosts small, focused examples that you can compose into a full d
 
 ```
 fullstack_computer_vision/
+├── data/
+│   └── plant_disease_recognition    # Dataset
+│       └── train
+│           └── Healthy (class 0)
+│           └── Powdery (class 1)
+│           └── Rust    (class 2)
+│       └── test
+│       └── validation
 ├── config/
 │   └── resnet_train_cfg.py          # Training hyperparameters & paths
 ├── dataset_loader/
@@ -38,12 +49,6 @@ fullstack_computer_vision/
 └── README.md
 ```
 
----
-
-## Stage 1 — Image Classification (ResNet)
-
-Build and train a baseline image classifier on a plant‑disease dataset (or any folder‑structured dataset). This stage focuses on clean data loading, sane defaults, and a reproducible training loop.
-
 ### Setup
 
 **Python** ≥ 3.10 and **PyTorch** with CUDA (optional).
@@ -53,9 +58,7 @@ Build and train a baseline image classifier on a plant‑disease dataset (or any
 conda create -n fcv python=3.10 -y
 conda activate fcv
 
-# Install dependencies
-pip install -r requirements.txt  # if present
-# Or minimal set:
+# minimal set:
 pip install torch torchvision tqdm wandb opencv-python pytest
 
 # Make repo importable when running modules
@@ -65,22 +68,22 @@ export PYTHONPATH="$(pwd)"
 $env:PYTHONPATH = (Get-Location).Path
 ```
 
+---
+
+## Stage 1 — Image Classification (ResNet)
+
+Build and train a baseline image classifier on a plant‑disease dataset (or any folder‑structured dataset). This stage focuses on clean data loading, sane defaults, and a reproducible training loop.
+
+### Video Tutorial
+
+To be added
+
+
 ### Data
 
-Point the config to your dataset root. Expected layout (class‑per‑folder):
+- [Plant disease dataset (Kaggle)](https://www.kaggle.com/datasets/rashikrahmanpritom/plant-disease-recognition-dataset/data)
 
-```
-<DATA_ROOT>/
-  ├─ class_a/
-  │    ├─ img_001.jpg
-  │    └─ ...
-  ├─ class_b/
-  │    ├─ img_042.jpg
-  │    └─ ...
-  └─ ...
-```
-
-If you use PlantVillage or a similar dataset, ensure train/val splits are configured in `resnet_train_cfg.py`.
+Follow the video tutorial series to setup the data
 
 ### Train
 
@@ -90,58 +93,8 @@ From the repository root:
 python -m training.train_plant_disease_resnet
 ```
 
-* Logs: stdout/TQDM, optionally to [Weights & Biases](https://wandb.ai/) if enabled in the config (`WANDB_PROJECT` env var recommended).
-* Artifacts: checkpoints and metrics are saved to the output directory defined in the config.
+* Artifacts: checkpoints and metrics are saved to the checkpoint directory defined in the config.
 
-### Evaluate & Test
-
-Run the dataset/unit tests:
-
-```bash
-pytest -q tests/test_plant_ds.py
-```
-
-(Extend with evaluation scripts as you add them; a validation loop is included in the training script.)
-
-### Configuration
-
-`config/resnet_train_cfg.py` centralizes paths and hyperparameters. A typical configuration includes fields like:
-
-```python
-# Example shape — adapt to your actual config structure
-DATA_ROOT = "data/plant_disease"
-OUTPUT_DIR = "runs/resnet"
-
-MODEL = {
-    "name": "resnet50",
-    "pretrained": True,
-    "num_classes": 38,  # set to your dataset
-}
-
-TRAINING = {
-    "epochs": 30,
-    "batch_size": 64,
-    "lr": 3e-4,
-    "weight_decay": 1e-4,
-    "num_workers": 4,
-    "mixed_precision": True,  # amp autocast
-    "seed": 42,
-}
-
-AUGMENTATION = {
-    "img_size": 224,
-    "random_resized_crop": True,
-    "hflip_prob": 0.5,
-    # normalization uses ImageNet mean/std in code
-}
-
-LOGGING = {
-    "use_wandb": True,
-    "project": "fullstack_cv",
-}
-```
-
-> **Tip:** Keep your config the single source of truth. CLI flags can override config values later (see Roadmap).
 
 ### Troubleshooting
 
@@ -149,29 +102,39 @@ LOGGING = {
   Run modules from the repo root (as shown above) **or** set `PYTHONPATH` to the project root.
 * **CUDA issues**
   Verify your PyTorch CUDA build: `python -c "import torch; print(torch.cuda.is_available())"`.
-* **Non‑determinism**
-  Fix seeds in your config and avoid stochastic augmentations during validation.
 
 ---
 
-## Roadmap
+<!-- ## Roadmap
 
 * **Stage 2 – Training Quality**
-
   * TorchMetrics, better LR schedulers, label smoothing, class‑imbalance handling
   * Deterministic training switches & rich evaluation reports
+
 * **Stage 3 – Experiment Management**
-
   * Hydra/OMEGACONF configs, model registry, checkpoint/versioning
-* **Stage 4 – API & Packaging**
 
+* **Stage 4 – API & Packaging**
   * FastAPI inference service with batch & streaming endpoints
   * Dockerfile + lightweight GPU/CPU images
   * Minimal CI (lint, tests) via GitHub Actions
 
-> Have ideas or requests? Open an issue with a short design note.
+> Have ideas or requests? Open an issue with a short design note. -->
 
 ---
+
+
+## Stage 2 — Object Detection
+TBA
+
+
+## Stage 3 — Segmentation
+TBA
+
+
+## Stage 4 — Vision Language Models
+TBA
+
 
 ## Contributing
 
